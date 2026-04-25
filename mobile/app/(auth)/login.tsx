@@ -7,34 +7,72 @@ export default function Login() {
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<{ email?: string[]; password?: string[] }>({});
+  const [errors, setErrors] = useState<{ email?: string[]; password?: string[]; general?: string }>({});
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
     const newErrors: { email?: string[]; password?: string[]; } = {};
 
-    if (!email) {
+    // Validation rules
+    if (!email.trim()) {
       newErrors.email = ["Email is required"];
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = ["Please enter a valid email address"];
     }
 
     if (!password) {
       newErrors.password = ["Password is required"];
+    } else if (password.length < 8) {
+      newErrors.password = ["Password must be at least 8 characters"];
     }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      setMessage("");
       return;
     }
 
     setErrors({});
+    setMessage("");
     setIsLoading(true);
     
     try {
       await login({ email, password });
-    } catch (error) {
-      // Handle error if needed
+      // Clear form on success
+      setEmail("");
+      setPassword("");
+    } catch (error: any) {
       console.error("Login error:", error);
+      
+      // Handle specific API error responses
+      if (error.response?.status === 422) {
+        // Validation errors from backend
+        const backendErrors = error.response.data.errors;
+        if (backendErrors) {
+          setErrors(backendErrors);
+        } else if (error.response.data.message === "The provided credentials are incorrect.") {
+          setErrors({ 
+            general: "Invalid email or password. Please try again." 
+          });
+        }
+      } else if (error.response?.status === 401) {
+        setErrors({ 
+          general: "Invalid credentials. Please check your email and password." 
+        });
+      } else if (error.response?.status === 404) {
+        setErrors({ 
+          general: "No account found with this email. Please register first." 
+        });
+      } else if (error.message === "Network Error") {
+        setErrors({ 
+          general: "Network error. Please check your internet connection." 
+        });
+      } else {
+        setErrors({ 
+          general: error.response?.data?.message || "Login failed. Please try again." 
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -43,6 +81,7 @@ export default function Login() {
   return (
     <View className="flex-1 items-center justify-center p-6 bg-gradient-to-b from-blue-50 to-indigo-100">
       <View className="bg-white/90 backdrop-blur-lg shadow-2xl p-8 w-full rounded-3xl border border-white/20" style={{ elevation: 20 }}>
+        {/* Success Message */}
         {message && (
           <View className="mb-4 px-4 py-3 bg-green-500/10 rounded-2xl border border-green-500/20">
             <Text className="text-green-600 text-center font-semibold">
@@ -51,9 +90,17 @@ export default function Login() {
           </View>
         )}
         
+        {/* General Error Message */}
+        {errors.general && (
+          <View className="mb-4 px-4 py-3 bg-red-500/10 rounded-2xl border border-red-500/20">
+            <Text className="text-red-600 text-center font-semibold">
+              {errors.general}
+            </Text>
+          </View>
+        )}
+        
         <View className="items-center mb-6">
-          <View className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl items-center justify-center mb-4 shadow-lg">
-            <Text className="text-3xl">🔐</Text>
+          <View >
           </View>
           <Text className="text-2xl font-bold text-gray-800">Maayong Pagbalik</Text>
           <Text className="text-gray-500 text-sm mt-1">Pag butang para mo sumpay</Text>
@@ -64,8 +111,14 @@ export default function Login() {
             <Text className="text-gray-700 font-semibold mb-2 text-sm">Email Address</Text>
             <TextInput
               value={email}
-              onChangeText={setEmail}
-              className="h-14 px-5 bg-gray-50 rounded-2xl border border-gray-200 text-gray-800 text-base"
+              onChangeText={(text) => {
+                setEmail(text);
+                if (errors.email) setErrors({ ...errors, email: undefined });
+                if (errors.general) setErrors({ ...errors, general: undefined });
+              }}
+              className={`h-14 px-5 bg-gray-50 rounded-2xl border text-gray-800 text-base ${
+                errors.email ? 'border-red-500' : 'border-gray-200'
+              }`}
               placeholder="Enter your email"
               placeholderTextColor="#9CA3AF"
               autoCapitalize="none"
@@ -84,8 +137,14 @@ export default function Login() {
             <Text className="text-gray-700 font-semibold mb-2 text-sm">Password</Text>
             <TextInput
               value={password}
-              onChangeText={setPassword}
-              className="h-14 px-5 bg-gray-50 rounded-2xl border border-gray-200 text-gray-800 text-base"
+              onChangeText={(text) => {
+                setPassword(text);
+                if (errors.password) setErrors({ ...errors, password: undefined });
+                if (errors.general) setErrors({ ...errors, general: undefined });
+              }}
+              className={`h-14 px-5 bg-gray-50 rounded-2xl border text-gray-800 text-base ${
+                errors.password ? 'border-red-500' : 'border-gray-200'
+              }`}
               placeholder="Enter your password"
               placeholderTextColor="#9CA3AF"
               secureTextEntry
@@ -98,6 +157,15 @@ export default function Login() {
               </View>
             )}
           </View>
+
+          {/* Forgot Password Link (Optional) */}
+          {/* <TouchableOpacity 
+            onPress={() => router.navigate("/forgot-password")}
+            className="items-end"
+            disabled={isLoading}
+          >
+            <Text className="text-blue-600 text-xs font-semibold">Nakalimot sa password?</Text>
+          </TouchableOpacity> */}
 
           <TouchableOpacity
             onPress={handleLogin}

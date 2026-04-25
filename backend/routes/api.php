@@ -11,9 +11,17 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
-
     Route::post('/logout', [AuthController::class, 'logout']);
-
+    
+    // Blog routes
     Route::post('/create/blog', [BlogController::class, 'createBlog']);
     Route::get('/fetchBlogs', [BlogController::class, 'fetchBlogs']);
+    
+    // User profile routes
+    Route::put('/user/profile', [AuthController::class, 'updateProfile']);
+    Route::patch('/user/profile', [AuthController::class, 'updateProfile']);
+    Route::post('/user/profile-image', [AuthController::class, 'updateProfileImage']); // NEW: for image upload only
+    Route::delete('/user/profile-image', [AuthController::class, 'removeProfileImage']);
+    Route::put('/user/password', [AuthController::class, 'updatePassword']);
+    Route::delete('/user/account', [AuthController::class, 'deleteAccount']);
 });
