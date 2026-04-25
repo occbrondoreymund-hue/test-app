@@ -92,14 +92,6 @@ export default function Home() {
           ))}
         </View>
 
-        {/* Footer
-        {blogs.length > 0 && (
-          <View className="mt-8 pt-4 border-t border-gray-200">
-            <Text className="text-gray-400 text-xs text-center">
-              {blogs.length} {blogs.length === 1 ? 'Blog Post' : 'Blog Posts'} Available
-            </Text>
-          </View>
-        )} */}
       </View>
     </ScrollView>
   );

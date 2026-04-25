@@ -1,6 +1,6 @@
 import { useAuth } from "@/contexts/auth-context";
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Pressable, Alert, Image, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Pressable, Alert, Image, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
 import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
@@ -154,164 +154,176 @@ export default function Register() {
   };
 
   return (
-    <View className="flex-1 items-center justify-center p-6 bg-gradient-to-b from-blue-50 to-indigo-100">
-      <View className="bg-white/90 backdrop-blur-lg shadow-2xl p-8 w-full rounded-3xl border border-white/20" style={{ elevation: 20 }}>
-        <View className="items-center mb-6">
-          <View className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl items-center justify-center mb-4 shadow-lg">
-            <Text className="text-3xl">📝</Text>
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      className="flex-1"
+    >
+      <ScrollView 
+        className="flex-1 bg-gradient-to-b from-blue-50 to-indigo-100"
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="items-center justify-center p-6 min-h-screen">
+          <View className="bg-white/90 backdrop-blur-lg shadow-2xl p-8 w-full rounded-3xl border border-white/20 mb-8" style={{ elevation: 20 }}>
+            <View className="items-center mb-6">
+              <View className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl items-center justify-center mb-4 shadow-lg">
+                <Text className="text-3xl">📝</Text>
+              </View>
+              <Text className="text-2xl font-bold text-gray-800">Buhat Account!</Text>
+            </View>
+
+            <View className="space-y-4">
+              {/* Profile Image Upload */}
+              <View className="items-center mb-2">
+                <TouchableOpacity
+                  onPress={pickImage}
+                  disabled={isLoading}
+                  className={`w-32 h-32 rounded-2xl justify-center items-center overflow-hidden shadow-lg ${
+                    errors.profile_image 
+                      ? 'bg-gradient-to-br from-red-500 to-red-600 border-2 border-red-300' 
+                      : 'bg-gradient-to-br from-blue-500 to-indigo-600'
+                  } ${isLoading ? 'opacity-50' : ''}`}
+                  activeOpacity={0.8}
+                >
+                  {profile_image ? (
+                    <>
+                      <Image source={{ uri: profile_image.uri }} className="w-full h-full" />
+                      <TouchableOpacity 
+                        onPress={removeImage}
+                        disabled={isLoading}
+                        className="absolute top-1 right-1 bg-red-500 rounded-full w-6 h-6 items-center justify-center"
+                      >
+                        <Text className="text-white text-xs font-bold">✕</Text>
+                      </TouchableOpacity>
+                    </>
+                  ) : (
+                    <View className="items-center">
+                      <Text className="text-4xl mb-2">📸</Text>
+                      <Text className="text-xs text-center text-white font-medium">Upload Photo</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+                <Text className="text-xs text-gray-500 mt-2">Tap to add profile picture</Text>
+                <Text className="text-xs text-gray-400 mt-1">Max 5MB • JPG, PNG, GIF, WEBP</Text>
+                {errors.profile_image && (
+                  <View className="mt-2 flex-row items-center">
+                    <Text className="text-red-500 text-xs">⚠️ </Text>
+                    <Text className="text-red-500 text-xs">{errors.profile_image[0]}</Text>
+                  </View>
+                )}
+              </View>
+
+              {/* Name Field */}
+              <View>
+                <Text className="text-gray-700 font-semibold mb-2 text-sm">Full Name</Text>
+                <TextInput 
+                  value={name} 
+                  onChangeText={setName} 
+                  className="h-14 px-5 bg-gray-50 rounded-2xl border border-gray-200 text-gray-800 text-base"
+                  placeholder="John Doe"
+                  placeholderTextColor="#9CA3AF"
+                  editable={!isLoading}
+                />
+                {errors.name && (
+                  <View className="mt-2 flex-row items-center">
+                    <Text className="text-red-500 text-xs">⚠️ </Text>
+                    <Text className="text-red-500 text-xs">{errors.name[0]}</Text>
+                  </View>
+                )}
+              </View>
+
+              {/* Email Field */}
+              <View>
+                <Text className="text-gray-700 font-semibold mb-2 text-sm">Email Address</Text>
+                <TextInput 
+                  value={email} 
+                  onChangeText={setEmail} 
+                  className="h-14 px-5 bg-gray-50 rounded-2xl border border-gray-200 text-gray-800 text-base"
+                  placeholder="john@example.com"
+                  placeholderTextColor="#9CA3AF"
+                  keyboardType="email-address" 
+                  autoCapitalize="none"
+                  editable={!isLoading}
+                />
+                {errors.email && (
+                  <View className="mt-2 flex-row items-center">
+                    <Text className="text-red-500 text-xs">⚠️ </Text>
+                    <Text className="text-red-500 text-xs">{errors.email[0]}</Text>
+                  </View>
+                )}
+              </View>
+
+              {/* Password Field */}
+              <View>
+                <Text className="text-gray-700 font-semibold mb-2 text-sm">Password</Text>
+                <TextInput 
+                  value={password} 
+                  onChangeText={setPassword} 
+                  className="h-14 px-5 bg-gray-50 rounded-2xl border border-gray-200 text-gray-800 text-base"
+                  placeholder="Create a password"
+                  placeholderTextColor="#9CA3AF"
+                  secureTextEntry 
+                  editable={!isLoading}
+                />
+                {errors.password && (
+                  <View className="mt-2 flex-row items-center">
+                    <Text className="text-red-500 text-xs">⚠️ </Text>
+                    <Text className="text-red-500 text-xs">{errors.password[0]}</Text>
+                  </View>
+                )}
+              </View>
+
+              {/* Confirm Password Field */}
+              <View>
+                <Text className="text-gray-700 font-semibold mb-2 text-sm">Confirm Password</Text>
+                <TextInput 
+                  value={password_confirmation} 
+                  onChangeText={setPasswordConfirmation} 
+                  className="h-14 px-5 bg-gray-50 rounded-2xl border border-gray-200 text-gray-800 text-base"
+                  placeholder="Confirm your password"
+                  placeholderTextColor="#9CA3AF"
+                  secureTextEntry 
+                  editable={!isLoading}
+                />
+                {errors.password_confirmation && (
+                  <View className="mt-2 flex-row items-center">
+                    <Text className="text-red-500 text-xs">⚠️ </Text>
+                    <Text className="text-red-500 text-xs">{errors.password_confirmation[0]}</Text>
+                  </View>
+                )}
+              </View>
+
+              {/* Register Button */}
+              <TouchableOpacity 
+                onPress={handleRegistration} 
+                disabled={isLoading}
+                className={`h-14 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 items-center justify-center shadow-lg active:opacity-90 mt-4 ${isLoading ? 'opacity-70' : ''}`}
+                activeOpacity={0.9}
+              >
+                {isLoading ? (
+                  <View className="flex-row items-center">
+                    <ActivityIndicator size="small" color="white" />
+                    <Text className="text-white font-bold text-base ml-2">Creating Account...</Text>
+                  </View>
+                ) : (
+                  <Text className="text-white font-bold text-base">Magbuhat!</Text>
+                )}
+              </TouchableOpacity>
+
+              {/* Login Link */}
+              <View className="flex-row justify-center items-center mt-2 pb-4">
+                <Text className="text-gray-600 text-sm">Naa na di ay kay account? </Text>
+                <Pressable onPress={() => router.navigate("/login")} disabled={isLoading}>
+                  <Text className="text-blue-600 font-semibold text-sm">
+                    pag Sign in!
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
           </View>
-          <Text className="text-2xl font-bold text-gray-800">Buhat Account!</Text>
         </View>
-
-        <View className="space-y-4">
-          {/* Profile Image Upload */}
-          <View className="items-center mb-2">
-            <TouchableOpacity
-              onPress={pickImage}
-              disabled={isLoading}
-              className={`w-32 h-32 rounded-2xl justify-center items-center overflow-hidden shadow-lg ${
-                errors.profile_image 
-                  ? 'bg-gradient-to-br from-red-500 to-red-600 border-2 border-red-300' 
-                  : 'bg-gradient-to-br from-blue-500 to-indigo-600'
-              } ${isLoading ? 'opacity-50' : ''}`}
-              activeOpacity={0.8}
-            >
-              {profile_image ? (
-                <>
-                  <Image source={{ uri: profile_image.uri }} className="w-full h-full" />
-                  <TouchableOpacity 
-                    onPress={removeImage}
-                    disabled={isLoading}
-                    className="absolute top-1 right-1 bg-red-500 rounded-full w-6 h-6 items-center justify-center"
-                  >
-                    <Text className="text-white text-xs font-bold">✕</Text>
-                  </TouchableOpacity>
-                </>
-              ) : (
-                <View className="items-center">
-                  <Text className="text-4xl mb-2">📸</Text>
-                  <Text className="text-xs text-center text-white font-medium">Upload Photo</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-            <Text className="text-xs text-gray-500 mt-2">Tap to add profile picture</Text>
-            <Text className="text-xs text-gray-400 mt-1">Max 5MB • JPG, PNG, GIF, WEBP</Text>
-            {errors.profile_image && (
-              <View className="mt-2 flex-row items-center">
-                <Text className="text-red-500 text-xs">⚠️ </Text>
-                <Text className="text-red-500 text-xs">{errors.profile_image[0]}</Text>
-              </View>
-            )}
-          </View>
-
-          {/* Name Field */}
-          <View>
-            <Text className="text-gray-700 font-semibold mb-2 text-sm">Full Name</Text>
-            <TextInput 
-              value={name} 
-              onChangeText={setName} 
-              className="h-14 px-5 bg-gray-50 rounded-2xl border border-gray-200 text-gray-800 text-base"
-              placeholder="John Doe"
-              placeholderTextColor="#9CA3AF"
-              editable={!isLoading}
-            />
-            {errors.name && (
-              <View className="mt-2 flex-row items-center">
-                <Text className="text-red-500 text-xs">⚠️ </Text>
-                <Text className="text-red-500 text-xs">{errors.name[0]}</Text>
-              </View>
-            )}
-          </View>
-
-          {/* Email Field */}
-          <View>
-            <Text className="text-gray-700 font-semibold mb-2 text-sm">Email Address</Text>
-            <TextInput 
-              value={email} 
-              onChangeText={setEmail} 
-              className="h-14 px-5 bg-gray-50 rounded-2xl border border-gray-200 text-gray-800 text-base"
-              placeholder="john@example.com"
-              placeholderTextColor="#9CA3AF"
-              keyboardType="email-address" 
-              autoCapitalize="none"
-              editable={!isLoading}
-            />
-            {errors.email && (
-              <View className="mt-2 flex-row items-center">
-                <Text className="text-red-500 text-xs">⚠️ </Text>
-                <Text className="text-red-500 text-xs">{errors.email[0]}</Text>
-              </View>
-            )}
-          </View>
-
-          {/* Password Field */}
-          <View>
-            <Text className="text-gray-700 font-semibold mb-2 text-sm">Password</Text>
-            <TextInput 
-              value={password} 
-              onChangeText={setPassword} 
-              className="h-14 px-5 bg-gray-50 rounded-2xl border border-gray-200 text-gray-800 text-base"
-              placeholder="Create a password"
-              placeholderTextColor="#9CA3AF"
-              secureTextEntry 
-              editable={!isLoading}
-            />
-            {errors.password && (
-              <View className="mt-2 flex-row items-center">
-                <Text className="text-red-500 text-xs">⚠️ </Text>
-                <Text className="text-red-500 text-xs">{errors.password[0]}</Text>
-              </View>
-            )}
-          </View>
-
-          {/* Confirm Password Field */}
-          <View>
-            <Text className="text-gray-700 font-semibold mb-2 text-sm">Confirm Password</Text>
-            <TextInput 
-              value={password_confirmation} 
-              onChangeText={setPasswordConfirmation} 
-              className="h-14 px-5 bg-gray-50 rounded-2xl border border-gray-200 text-gray-800 text-base"
-              placeholder="Confirm your password"
-              placeholderTextColor="#9CA3AF"
-              secureTextEntry 
-              editable={!isLoading}
-            />
-            {errors.password_confirmation && (
-              <View className="mt-2 flex-row items-center">
-                <Text className="text-red-500 text-xs">⚠️ </Text>
-                <Text className="text-red-500 text-xs">{errors.password_confirmation[0]}</Text>
-              </View>
-            )}
-          </View>
-
-          {/* Register Button */}
-          <TouchableOpacity 
-            onPress={handleRegistration} 
-            disabled={isLoading}
-            className={`h-14 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 items-center justify-center shadow-lg active:opacity-90 mt-4 ${isLoading ? 'opacity-70' : ''}`}
-            activeOpacity={0.9}
-          >
-            {isLoading ? (
-              <View className="flex-row items-center">
-                <ActivityIndicator size="small" color="white" />
-                <Text className="text-white font-bold text-base ml-2">Creating Account...</Text>
-              </View>
-            ) : (
-              <Text className="text-white font-bold text-base">Magbuhat!</Text>
-            )}
-          </TouchableOpacity>
-
-          {/* Login Link */}
-          <View className="flex-row justify-center items-center mt-2">
-            <Text className="text-gray-600 text-sm">Naa na di ay kay account? </Text>
-            <Pressable onPress={() => router.navigate("/login")} disabled={isLoading}>
-              <Text className="text-blue-600 font-semibold text-sm">
-                pag Sign in!
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-      </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
