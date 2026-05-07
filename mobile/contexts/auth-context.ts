@@ -4,6 +4,8 @@ import { router } from "expo-router";
 import { Alert } from "react-native";
 import { create } from "zustand";
 import { ImagePickerAsset } from 'expo-image-picker';
+import { isAxiosError } from "axios";
+
 
 interface User {
   id?: number;
@@ -50,20 +52,19 @@ export const useAuth = create<AuthState>((set, get) => ({
   isLoading: false,
 
   getUser: async () => {
-    try {
-      const token = await getToken();
-      if (!token) return;
-      
-      const { data } = await axios.get("/user");
-      set({ user: data });
-    } catch (error) {
-      console.log("Get user error:", error);
-      // If token is invalid, logout
-      if (axios.isAxiosError(error) && error.response?.status === 401) {
-        await get().logout();
-      }
+  try {
+    const token = await getToken();
+    if (!token) return;
+    
+    const { data } = await axios.get("/user");
+    set({ user: data });
+  } catch (error) {
+    console.log("Get user error:", error);
+    if (error && typeof error === 'object' && 'isAxiosError' in error && error.isAxiosError === true && error.response?.status === 401) {
+      await get().logout();
     }
-  },
+  }
+},
 
   login: async (data) => {
     set({ isLoading: true });

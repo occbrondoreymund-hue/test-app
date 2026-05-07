@@ -16,6 +16,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Blog routes
     Route::post('/create/blog', [BlogController::class, 'createBlog']);
     Route::get('/fetchBlogs', [BlogController::class, 'fetchBlogs']);
+    Route::get('/blogs/{id}', [BlogController::class, 'show']);
     
     // User profile routes
     Route::put('/user/profile', [AuthController::class, 'updateProfile']);

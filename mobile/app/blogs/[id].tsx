@@ -1,170 +1,115 @@
-// import {View,Text,TextInput,Alert,TouchableOpacity,Image,} from "react-native";
+import { View, Text, Image, ScrollView, ActivityIndicator } from "react-native";
+import { useLocalSearchParams, router } from "expo-router";
+import React, { useEffect, useState } from "react";
+import axios from "@/api/axios";
+import { Pressable } from "react-native";
 
-// import * as ImagePicker from "expo-image-picker";
-// import { useEffect, useState } from "react";
-// import axios from "axios";
-// import { useLocalSearchParams } from "expo-router";
-// import { useRouter } from 'expo-router';
+type BlogDetailProps = {
+  id: number;
+  title: string;
+  image: string;
+  description: string;
+  content?: string; 
+  created_at?: string;
+};
 
-// type BlogProps = {
-//   id: number;
-//   title: string;
-//   image: string;
-//   description: string;
-// };
+export default function BlogDetail() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const [blog, setBlog] = useState<BlogDetailProps | null>(null);
+  const [loading, setLoading] = useState(true);
 
-// export default function Student() {
-//   const [title, setTitle] = useState("");
-//     const [image, setImage] = useState<any>(null);
-//     const [description, setDescription] = useState("");
-  
-//     const pickImage = async () => {
-//       const permissionResult =
-//         await ImagePicker.requestMediaLibraryPermissionsAsync();
-  
-//       if (!permissionResult.granted) {
-//         Alert.alert(
-//           "Permission required",
-//           "Permission to access the media library is required.",
-//         );
-//         return;
-//       }
-  
-//       let result = await ImagePicker.launchImageLibraryAsync({
-//         mediaTypes: ["images"],
-//         allowsEditing: true,
-//         aspect: [4, 3],
-//         quality: 1,
-//       });
-  
-//       if (!result.canceled) {
-//         setImage(result.assets[0]);
-//       }
-//     };
+  const fetchBlogDetail = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`http://127.0.0.1:8000/api/blogs/${id}`);
+      setBlog(response.data);
+    } catch (error) {
+      console.log("Error fetching blog details:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    
+  useEffect(() => {
+    if (id) {
+      fetchBlogDetail();
+    }
+  }, [id]);
 
-//     const handleSubmit = async () => {
-//         try {
-//             const response = await axios.post(
-//                 `http://192.168.0.85:8000/api/students/edit/${id}`,
-//                 { first_name, last_name, course, year_level, profile_image: profile_image?.file },
-//                 {
-//                     headers: {
-//                         "Content-Type": "multipart/form-data",
-//                     },
-//                 },
-//             );
-//             setMessage(response.data.message);
-//         } catch (error: any) {
-//             setErrors(error.response.data.errors);
-//         }
-//     };
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-gradient-to-b from-blue-50 to-indigo-100">
+        <ActivityIndicator size="large" color="#3b82f6" />
+      </View>
+    );
+  }
 
-//       const handleDelete = async () => {
-//         try {
-//             const response = await axios.post(
-//                 `http://192.168.0.85:8000/api/students/destroy/${id}`,
-//                 { first_name, last_name, course, year_level, profile_image: profile_image?.file },
-//                 {
-//                     headers: {
-//                         "Content-Type": "multipart/form-data",
-//                     },
-//                 },
-//             );
-//             setMessage(response.data.message);
-//         } catch (error: any) {
-//             setErrors(error.response.data.errors);
-//         }
-//     };
-// const handleBackPress = () => {
-//     router.back(); 
-//   };
-//     return (
-//         <View>
-//             {message && (
-//                 <Text className="h-12 bg-green-500 text-white">{message}</Text>
-//             )}
-//             <View>
-//                 <Text>First Name</Text>
-//                 <TextInput
-//                     value={first_name}
-//                     onChangeText={setfirst_Name}
-//                     className="outline-none border h-12 px-4 focus:border-blue-500"
-//                 />
-//                 {errors.name && <Text className="text-red-500">{errors.first_name[0]}</Text>}
-//             </View>
-//              <View>
-//                 <Text>Last Name</Text>
-//                 <TextInput
-//                     value={last_name}
-//                     onChangeText={setlast_Name}
-//                     className="outline-none border h-12 px-4 focus:border-blue-500"
-//                 />
-//                 {errors.last_name && <Text className="text-red-500">{errors.last_name[0]}</Text>}
-//             </View>
-//             <View>
-//                 <Text>Course</Text>
-//                 <TextInput
-//                     value={course}
-//                     onChangeText={setCourse}
-//                     className="outline-none border h-12 px-4 focus:border-blue-500"
-//                 />
-//                 {errors.course && (
-//                     <Text className="text-red-500">{errors.course[0]}</Text>
-//                 )}
-//             </View>
-//             <View>
-//                 <Text>Year Level</Text>
-//                 <TextInput
-//                     value={year_level}
-//                     onChangeText={setYear_level}
-//                     className="outline-none border h-12 px-4 focus:border-blue-500"
-//                 />
-//                 {errors.year_level && (
-//                     <Text className="text-red-500">{errors.year_level[0]}</Text>
-//                 )}
-//             </View>
-//             <TouchableOpacity
-//                 onPress={pickImage}
-//                 className="h-12 bg-blue-500 justify-center items-center"
-//             >
-//                 <Text className="text-white">Browse Image</Text>
-//             </TouchableOpacity>
-//             {errors.profile_image && <Text className="text-red-500">{errors.profile_image[0]}</Text>}
-//             {profile_image?.uri ? (
-//                 <Image
-//                     className="h-40"
-//                     source={{
-//                         uri: profile_image.uri,
-//                     }}
-//                 />
-//             ) : (
-//                 <Image
-//                     className="h-40"
-//                     source={{
-//                         uri: `http://192.168.0.85:8000/storage/${student?.profile_image}`,
-//                     }}
-//                 />
-//             )}
-//             <TouchableOpacity
-//                 onPress={handleSubmit}
-//                 className="h-12 bg-green-500 justify-center items-center mb-6"
-//             >
-//                 <Text className="text-white mb-4">Submit</Text>
-//             </TouchableOpacity>
- 
-//               <TouchableOpacity
-//                 onPress={handleDelete}
-//                 className="h-12 bg-red-500 justify-center items-center"
-//             >
-//                 <Text className="text-white">Delete Student</Text>
-//             </TouchableOpacity>
-//              <TouchableOpacity onPress={handleBackPress} className="h-8 mt-12 bg-yellow-500 justify-center items-center mb-6">
-//         <Text>Back To Home</Text>
-//       </TouchableOpacity>
-//         </View>
-//     );
+  if (!blog) {
+    return (
+      <View className="flex-1 justify-center items-center bg-gradient-to-b from-blue-50 to-indigo-100">
+        <Text className="text-gray-600 text-lg">Blog post not found</Text>
+        <Pressable onPress={() => router.back()} className="mt-4">
+          <Text className="text-blue-600 text-base">Go Back</Text>
+        </Pressable>
+      </View>
+    );
+  }
 
-    
-// }
+  return (
+    <ScrollView 
+      className="flex-1 bg-gradient-to-b from-blue-50 to-indigo-100"
+      showsVerticalScrollIndicator={false}
+    >
+      {/* Back Button */}
+      <Pressable 
+        onPress={() => router.back()} 
+        className="absolute top-12 left-4 z-10 bg-white/90 rounded-full p-2 shadow-md"
+      >
+        <Text className="text-blue-600 text-lg font-bold">← Back</Text>
+      </Pressable>
+
+      {/* Blog Image */}
+      <Image
+        className="h-72 w-full"
+        source={{
+          uri: `http://127.0.0.1:8000/storage/${blog.image}`,
+        }}
+        style={{ resizeMode: 'cover' }}
+      />
+
+      {/* Blog Content */}
+      <View className="p-6">
+        {/* Title */}
+        <Text className="text-3xl font-bold text-gray-800 mb-4">
+          {blog.title}
+        </Text>
+
+        {/* Meta Info (Optional) */}
+        {blog.created_at && (
+          <Text className="text-gray-500 text-sm mb-6">
+            Posted on {new Date(blog.created_at).toLocaleDateString()}
+          </Text>
+        )}
+
+        {/* Description */}
+        <View className="mb-6">
+          <Text className="text-gray-700 text-lg leading-7">
+            {blog.description}
+          </Text>
+        </View>
+
+        {/* Full Content (if available) */}
+        {blog.content && (
+          <View className="border-t border-gray-200 pt-6">
+            <Text className="text-xl font-bold text-gray-800 mb-3">
+              Full Story
+            </Text>
+            <Text className="text-gray-700 text-base leading-6">
+              {blog.content}
+            </Text>
+          </View>
+        )}
+      </View>
+    </ScrollView>
+  );
+}
