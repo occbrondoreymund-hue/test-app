@@ -89,13 +89,11 @@ export default function Profile() {
 
     setIsUpdating(true);
     try {
-      // Update name and email
       await updateProfileInfo({
         name: editName,
         email: editEmail,
       });
       
-      // Update image if selected
       if (editProfileImage && editProfileImage !== "remove") {
         await updateProfileImage(editProfileImage);
       }
@@ -105,7 +103,6 @@ export default function Profile() {
       setEditProfileImage(null);
     } catch (error) {
       console.error(error);
-      // Error is already shown in the context functions
     } finally {
       setIsUpdating(false);
     }
@@ -250,7 +247,7 @@ export default function Profile() {
             </View>
 
             {/* Change Password Button */}
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={openPasswordModal}
               className="bg-yellow-500 rounded-2xl p-4 mb-4 flex-row items-center border border-yellow-200"
               activeOpacity={0.8}
@@ -265,7 +262,7 @@ export default function Profile() {
                 </Text>
               </View>
               <Text className="text-yellow-600 text-lg">→</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
 
           <View className="px-6 pb-6">
@@ -281,7 +278,7 @@ export default function Profile() {
         </View>
       </View>
 
-      {/* Edit Profile Modal */}
+
       <Modal
         visible={isEditModalVisible}
         animationType="slide"
@@ -294,7 +291,6 @@ export default function Profile() {
               <View>
               </View>
               <Text className="text-2xl font-bold text-gray-800">Edit Profile</Text>
-              {/* <Text className="text-gray-500 text-sm mt-1">Update your account information</Text> */}
             </View>
 
             {/* Profile Image Section in Modal */}
@@ -333,10 +329,8 @@ export default function Profile() {
                   </View>
                 )}
               </TouchableOpacity>
-              
               <Text className="text-xs text-gray-500 mt-2">Tap to change profile picture</Text>
               
-              {/* Remove image button */}
               {(user?.profile_image || editProfileImage) && (
                 <TouchableOpacity 
                   onPress={() => {
@@ -362,7 +356,6 @@ export default function Profile() {
                   }}
                   className="mt-2"
                 >
-                  {/* <Text className="text-red-500 text-xs">Remove Photo</Text> */}
                 </TouchableOpacity>
               )}
             </View>
@@ -417,7 +410,7 @@ export default function Profile() {
         </View>
       </Modal>
 
-      {/* Change Password Modal */}
+      {/* change ug password  */}
       <Modal
         visible={isPasswordModalVisible}
         animationType="slide"

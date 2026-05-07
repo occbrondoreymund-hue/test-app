@@ -1,19 +1,25 @@
-import axiosClient from "axios";
-import { getToken } from "@/services/auth-storage";
+import axios from 'axios';
+import { getToken } from '@/services/auth-storage';
 
-const axios = axiosClient.create({
-  baseURL: "http://127.0.0.1:8000/api",
-  headers: {
-    Accept: "application/json",
+const axiosInstance = axios.create({
+  baseURL: 'http://127.0.0.1:8000/api',
+  timeout: 10000,
+   headers: {
+    'Content-Type': 'application/json',
   },
 });
 
-axios.interceptors.request.use(async (req) => {
-  const token = await getToken();
-  if (token) {
-    req.headers.Authorization = `Bearer ${token}`;
+axiosInstance.interceptors.request.use(
+  async (config) => {
+    const token = await getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return req;
-});
+);
 
-export default axios;
+export default axiosInstance;

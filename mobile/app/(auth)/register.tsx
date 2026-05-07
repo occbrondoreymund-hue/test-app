@@ -36,12 +36,9 @@ export default function Register() {
 
     if (!result.canceled) {
       const selectedImage = result.assets[0];
-      
-      // Image validation
       const maxSizeInMB = 5;
       const fileSizeInMB = selectedImage.fileSize ? selectedImage.fileSize / (1024 * 1024) : 0;
       
-      // Validate file size
       if (fileSizeInMB > maxSizeInMB) {
         Alert.alert(
           "File Too Large",
@@ -50,7 +47,6 @@ export default function Register() {
         return;
       }
       
-      // Validate file type
       const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
       if (selectedImage.mimeType && !validTypes.includes(selectedImage.mimeType)) {
         Alert.alert(
@@ -60,7 +56,6 @@ export default function Register() {
         return;
       }
       
-      // Validate dimensions (optional)
       if (selectedImage.width && selectedImage.height) {
         const minDimension = 100;
         const maxDimension = 4096;
@@ -83,7 +78,6 @@ export default function Register() {
       }
       
       setProfileImage(selectedImage);
-      // Clear image error if exists
       if (errors.profile_image) {
         setErrors((prev: any) => ({ ...prev, profile_image: undefined }));
       }
@@ -96,12 +90,9 @@ export default function Register() {
     if (!email) newErrors.email = ["Email is required"];
     if (!password) newErrors.password = ["Password is required"];
     if (password !== password_confirmation) newErrors.password_confirmation = ["Passwords do not match"];
-    
-    // Image validation on form submission
     if (!profile_image) {
       newErrors.profile_image = ["Profile picture is required"];
     } else {
-      // Additional validation for existing image
       if (profile_image.fileSize) {
         const maxSizeInMB = 5;
         const fileSizeInMB = profile_image.fileSize / (1024 * 1024);
@@ -109,7 +100,6 @@ export default function Register() {
           newErrors.profile_image = [`Image size must be less than ${maxSizeInMB}MB`];
         }
       }
-      
       if (profile_image.mimeType) {
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
         if (!validTypes.includes(profile_image.mimeType)) {
@@ -174,7 +164,6 @@ export default function Register() {
             </View>
 
             <View className="space-y-4">
-              {/* Profile Image Upload */}
               <View className="items-center mb-2">
                 <TouchableOpacity
                   onPress={pickImage}

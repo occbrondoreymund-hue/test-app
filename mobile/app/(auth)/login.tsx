@@ -39,15 +39,12 @@ export default function Login() {
     
     try {
       await login({ email, password });
-      // Clear form on success
       setEmail("");
       setPassword("");
     } catch (error: any) {
       console.error("Login error:", error);
       
-      // Handle specific API error responses
       if (error.response?.status === 422) {
-        // Validation errors from backend
         const backendErrors = error.response.data.errors;
         if (backendErrors) {
           setErrors(backendErrors);
@@ -81,7 +78,6 @@ export default function Login() {
   return (
     <View className="flex-1 items-center justify-center p-6 bg-gradient-to-b from-blue-50 to-indigo-100">
       <View className="bg-white/90 backdrop-blur-lg shadow-2xl p-8 w-full rounded-3xl border border-white/20" style={{ elevation: 20 }}>
-        {/* Success Message */}
         {message && (
           <View className="mb-4 px-4 py-3 bg-green-500/10 rounded-2xl border border-green-500/20">
             <Text className="text-green-600 text-center font-semibold">
@@ -90,7 +86,6 @@ export default function Login() {
           </View>
         )}
         
-        {/* General Error Message */}
         {errors.general && (
           <View className="mb-4 px-4 py-3 bg-red-500/10 rounded-2xl border border-red-500/20">
             <Text className="text-red-600 text-center font-semibold">
